@@ -1,96 +1,232 @@
-import java.awt.*; 
+import java.awt.*;
 import java.awt.event.*; 
-import javax.swing.*; 
+import javax.swing.*;
 
-public class calculatrice implements ActionListener 
-{ 
+public class calculatrice extends JFrame {
+	private JPanel container = new JPanel();
 
-JTextArea affichage; 
 
-public calculatrice() 
-{ 
+	String[] tableaucalcul = {"1","2","3","4","5","6","7","8","9","0",".","=","C","+","-","*","/","racine"};
+	JButton[] tableaudebouton = new JButton[17];
 
-JFrame all = new JFrame("calculatrice" ); 
+	private JLabel ecran = new JLabel();
+	private double premierchiffre;
+	private boolean clicOperateur = false, update = false;
+	private String operateur = "";
 
-JPanel back = new JPanel(); 
-JPanel clavier = new JPanel(); 
-JPanel operation = new JPanel(); 
-JPanel clavscien= new JPanel(); 
-JPanel egal=new JPanel(); 
+// méthode permettant l'initialisation des differents élements de l'interface //
 
-egal.setLayout(new BorderLayout()); 
-back.setLayout(new BorderLayout()); 
-operation.setLayout(new GridLayout(4,1)); 
-clavscien.setLayout(new GridLayout(2,1)); 
-clavier.setLayout(new GridLayout(4,3)); 
+	private void initialiserInterface(){
+		ecran = new JLabel("0");
+		ecran.setFont(new Font("Arial",Font.BOLD,25));
+		ecran.setForeground(Color.RED);
+		ecran.setHorizontalAlignment(JLabel.RIGHT);
+		ecran.setPreferredSize(new Dimension(220, 20));
+		JPanel operateur = new JPanel();      
+		operateur.setPreferredSize(new Dimension(175,186));
+		JPanel chiffre = new JPanel();
+		chiffre.setPreferredSize(new Dimension(165, 185));
+		JPanel panEcran = new JPanel();
+		panEcran.setPreferredSize(new Dimension(220, 30));
 
-JButton t1 = new JButton("1" ); 
-t1.addActionListener(this); 
-JButton t2 = new JButton("2" ); 
-t2.addActionListener(this); 
-JButton t3 = new JButton("3" ); 
-t3.addActionListener(this); 
-JButton t4 = new JButton("4" ); 
-t4.addActionListener(this); 
-JButton t5 = new JButton("5" ); 
-t5.addActionListener(this); 
-JButton t6 = new JButton("6" ); 
-t6.addActionListener(this); 
-JButton t7 = new JButton("7" ); 
-t7.addActionListener(this); 
-JButton t8 = new JButton("8" ); 
-t8.addActionListener(this); 
-JButton t9 = new JButton("9" ); 
-t9.addActionListener(this); 
-JButton t10 = new JButton("0" ); 
-t10.addActionListener(this); 
-JButton t11 = new JButton("," ); 
-t11.addActionListener(this); 
-JButton t12 = new JButton("-" ); 
-t12.addActionListener(this); 
-JButton plus = new JButton("+" ); 
-plus.addActionListener(this); 
-JButton moins = new JButton("-" ); 
-moins.addActionListener(this); 
-JButton fois = new JButton("*" ); 
-fois.addActionListener(this); 
-JButton divise = new JButton("/" ); 
-divise.addActionListener(this); 
-JButton carre = new JButton("²" ); 
-carre.addActionListener(this); 
-JButton cube = new JButton("³" ); 
-cube.addActionListener(this); 
-JButton tegal = new JButton("=" ); 
-tegal.addActionListener(this); 
+//boucle permettant d'afficher les differents boutons 
 
-clavier.add(t1); clavier.add(t2); clavier.add(t3); 
-clavier.add(t4); clavier.add(t5); clavier.add(t6); 
-clavier.add(t7); clavier.add(t8); clavier.add(t9); 
-clavier.add(t10); clavier.add(t11); clavier.add(t12); 
+		for(int i = 0;i<=16;i++)
+		{
+			tableaudebouton[i] = new JButton(tableaucalcul[i]);
+			tableaudebouton[i].setPreferredSize(new Dimension(50, 41));
 
-clavscien.add(carre); 
-clavscien.add(cube); 
-operation.add(plus); 
-operation.add(moins); 
-operation.add(divise); 
-operation.add(fois); 
-affichage= new JTextArea(); 
-affichage.setLayout(new BorderLayout()); 
-egal.add(tegal); 
-back.add(affichage,BorderLayout.NORTH); 
-back.add(operation,BorderLayout.WEST); 
-back.add(clavier,BorderLayout.CENTER); 
-back.add(clavscien,BorderLayout.EAST); 
-back.add(egal,BorderLayout.SOUTH); 
-all.setContentPane(back); 
-all.setVisible(true); 
-all.pack(); 
-} 
+			if(i == 11)
+			{
+				tableaudebouton[i].addActionListener(new Egalite());
+				chiffre.add(tableaudebouton[i]);
+			}
+			else if (i== 12)
+			{
+				tableaudebouton[i].setForeground(Color.darkGray);
+				tableaudebouton[i].addActionListener(new Annulation());
+				tableaudebouton[i].setPreferredSize(new Dimension(50, 61));
+				operateur.add(tableaudebouton[i]);
 
-public void actionPerformed(ActionEvent evt) 
-{ 
-String a = evt.getActionCommand(); 
-affichage.setText(a); 
-} 
+			}
+			else if( i == 13)
+			{
+				tableaudebouton[i].setForeground(Color.RED);
+				tableaudebouton[i].addActionListener(new Addition());
+				tableaudebouton[i].setPreferredSize(new Dimension(50, 61));
+				operateur.add(tableaudebouton[i]);
+			}
+			else if(i == 14)
+			{
+				tableaudebouton[i].setForeground(Color.RED);
+				tableaudebouton[i].addActionListener(new Soustraction());
+				tableaudebouton[i].setPreferredSize(new Dimension(50, 61));
+				operateur.add(tableaudebouton[i]);
+			}	
+			else if (i == 15 ){	
+				tableaudebouton[i].setForeground(Color.RED);
+				tableaudebouton[i].addActionListener(new Multiplication());
+				tableaudebouton[i].setPreferredSize(new Dimension(50, 61));
+				operateur.add(tableaudebouton[i]);
+			}
+			else if (i == 16) {
+				tableaudebouton[i].setForeground(Color.RED);
+				tableaudebouton[i].addActionListener(new Division());
+				tableaudebouton[i].setPreferredSize(new Dimension(50,61));
+				operateur.add(tableaudebouton[i]);
+			}
+			else
+			{
+				chiffre.add(tableaudebouton[i]);
+				tableaudebouton[i].addActionListener(new AfficherChiffre());
 
-} 
+			}
+		}
+
+		panEcran.add(ecran);
+		container.add(panEcran);
+		container.add(chiffre);
+		container.add(operateur);
+
+	}
+
+	public calculatrice(){
+		this.setSize(360,300);
+		this.setResizable(false);
+		this.setTitle("Calculatrice");
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setContentPane(container);
+		this.setVisible(true);
+		initialiserInterface();
+	}
+
+
+	private void calcul(){
+		if(operateur == "+"){
+			premierchiffre = premierchiffre + 
+					Double.valueOf(ecran.getText()).doubleValue();
+			ecran.setText(String.valueOf(premierchiffre));
+		}
+		if(operateur == "-" ){
+			premierchiffre = premierchiffre - 
+					Double.valueOf(ecran.getText()).doubleValue();
+			ecran.setText(String.valueOf(premierchiffre));
+		}          
+		if(operateur == "*" ){
+			premierchiffre = premierchiffre * 
+					Double.valueOf(ecran.getText()).doubleValue();
+			ecran.setText(String.valueOf(premierchiffre));
+		}     
+		if(operateur == "/" ){
+			try{
+				premierchiffre = premierchiffre / 
+						Double.valueOf(ecran.getText()).doubleValue();
+				ecran.setText(String.valueOf(premierchiffre));
+			} catch(ArithmeticException e) {
+				ecran.setText("0");
+			}
+		}
+	}
+
+
+
+	//classe permettant les actions sur les boutons  
+
+	public class AfficherChiffre implements ActionListener {
+		public void actionPerformed(ActionEvent e){
+
+			String str = ((JButton)e.getSource()).getText();
+			if(update){
+				update = false;
+			}
+			else{
+				if(!ecran.getText().equals("Ecrivez un Chiffre"))
+					str = ecran.getText() + str;
+			}
+			ecran.setText(str);
+		}
+	}
+
+
+	public class Egalite implements ActionListener {
+		public void actionPerformed(ActionEvent arg0){
+			calcul();
+			update = true;
+			clicOperateur = false;
+		}
+	}
+
+
+	public class Addition implements ActionListener {
+		public void actionPerformed(ActionEvent arg0){
+			if(clicOperateur){
+				calcul();
+				ecran.setText(String.valueOf(premierchiffre));
+			}
+			else{
+				premierchiffre = Double.valueOf(ecran.getText()).doubleValue();
+				clicOperateur = true;
+			}
+			operateur = "+";
+			update = true;
+		}
+	}
+
+
+	public class Soustraction implements ActionListener {
+		public void actionPerformed(ActionEvent arg0){
+			if(clicOperateur){
+				calcul();
+				ecran.setText(String.valueOf(premierchiffre));
+			}
+			else{
+				premierchiffre = Double.valueOf(ecran.getText()).doubleValue();
+				clicOperateur = true;
+			}
+			operateur = "-";
+			update = true;
+		}
+	}
+
+
+	public class Multiplication implements ActionListener {
+		public void actionPerformed(ActionEvent arg0){
+			if(clicOperateur){
+				calcul();
+				ecran.setText(String.valueOf(premierchiffre));
+			}
+			else{
+				premierchiffre = Double.valueOf(ecran.getText()).doubleValue();
+				clicOperateur = true;
+			}
+			operateur = "*";
+			update = true;
+		}
+	}
+
+
+	public class Division implements ActionListener {
+		public void actionPerformed(ActionEvent arg0){
+			if(clicOperateur){
+				calcul();
+				ecran.setText(String.valueOf(premierchiffre));
+			}
+			else{
+				premierchiffre = Double.valueOf(ecran.getText()).doubleValue();
+				clicOperateur = true;
+			}
+			operateur = "/";
+			update = true;
+		}
+	}
+
+	public class Annulation implements ActionListener {
+		public void actionPerformed(ActionEvent arg0){
+			clicOperateur = false;
+			update = true;
+			premierchiffre = 0;
+			operateur = "";
+			ecran.setText("0");
+		}
+	}      
+}
